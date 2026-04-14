@@ -13,87 +13,34 @@ body {
   color: #cdd9e5;
 }
 
+/* header */
 .header {
   height: 42px;
   background: #111826;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 12px;
   font-size: 12px;
   color: #8b949e;
   border-bottom: 1px solid #1f2a3a;
 }
 
-.container {
+/* input */
+.inputBox {
   display: flex;
-  height: calc(100vh - 42px);
-}
-
-/* 左侧 */
-.sidebar {
-  width: 280px;
-  background: #0f1624;
-  border-right: 1px solid #1f2a3a;
-  padding: 10px;
-}
-
-.block {
-  background: #0b1220;
-  border: 1px solid #1f2a3a;
-  padding: 8px;
-  margin-bottom: 10px;
-  font-size: 11px;
-  color: #9fb3c8;
-}
-
-.title {
-  color: #58a6ff;
-  margin-bottom: 6px;
-}
-
-/* 🔥 右侧恢复 grid 铺满 */
-.main {
-  flex: 1;
-  padding: 10px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  overflow: auto;
-}
-
-/* 面板 */
-.panel {
-  background: #0b1220;
-  border: 1px solid #1f2a3a;
-  padding: 10px;
-  position: relative;
-}
-
-.log {
-  font-size: 11px;
-  margin: 2px 0;
-}
-
-.info { color: #8b949e; }
-.ok { color: #3fb950; }
-.warn { color: #d29922; }
-
-/* 输入区（固定在最后一个 panel） */
-.inputBar {
-  display: flex;
-  margin-top: 10px;
-  border-top: 1px solid #1f2a3a;
-  padding-top: 8px;
   gap: 6px;
+  align-items: center;
 }
 
 #input {
-  flex: 1;
   background: transparent;
-  border: none;
+  border: 1px solid #1f2a3a;
   color: #cdd9e5;
   outline: none;
+  padding: 4px 8px;
   font-family: monospace;
+  width: 220px;
 }
 
 button {
@@ -109,110 +56,134 @@ button:hover {
   background: #2ea043;
 }
 
-.train-btn {
-  background: #1f6feb;
+/* layout */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 42px);
 }
 
-.train-btn:hover {
-  background: #388bfd;
+/* top logs */
+.topLogs {
+  height: 120px;
+  overflow: auto;
+  border-bottom: 1px solid #1f2a3a;
+  padding: 10px;
+  background: #0f1624;
+}
+
+.log {
+  font-size: 11px;
+  margin: 2px 0;
+}
+
+.ok { color: #3fb950; }
+.info { color: #8b949e; }
+.warn { color: #d29922; }
+
+/* middle selenium */
+.middle {
+  flex: 1;
+  overflow: auto;
+  padding: 10px;
+  background: #0b1220;
+  border-bottom: 1px solid #1f2a3a;
+  white-space: pre;
+  font-size: 11px;
+  color: #9fb3c8;
+}
+
+/* bottom training model */
+.bottom {
+  height: 180px;
+  overflow: auto;
+  padding: 10px;
+  background: #0f1624;
+}
+
+.aiBox {
+  padding: 8px;
+  border: 1px solid #1f2a3a;
+  background: #0b1220;
+  font-size: 11px;
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
-Distributed ML Console • Cluster: ap-southeast-1 • runtime: stable-v3.8 • nodes: 12
+  <div>Distributed ML Console • selenium runtime active</div>
+
+  <div class="inputBox">
+    <input id="input" placeholder="enter command..." />
+    <button onclick="send()">exec</button>
+  </div>
 </div>
 
+<!-- MAIN -->
 <div class="container">
 
-<!-- 左侧 -->
-<div class="sidebar">
-
-  <div class="block">
-    <div class="title">System Topology</div>
-    nodes: 12 active<br>
-    shards: 4<br>
-    replication: enabled<br>
-    status: stable
+  <!-- TOP: input logs -->
+  <div class="topLogs" id="topLogs">
+    <div class="log info">[system] input stream initialized</div>
   </div>
 
-  <div class="block">
-    <div class="title">Compute Layer</div>
-    CPU: distributed<br>
-    GPU: pooled abstraction<br>
-    scheduler: k8s-like runtime<br>
-    queue depth: 3
+  <!-- MIDDLE: selenium code -->
+  <div class="middle">
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+import time
+
+options = Options()
+options.add_argument("--headless")
+
+driver = webdriver.Chrome(service=Service(), options=options)
+
+driver.get("https://example.com")
+
+elements = driver.find_elements(By.TAG_NAME, "div")
+for e in elements:
+    print(e.text)
+
+for i in range(50):
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(0.2)
+
+nodes = ["node-1", "node-2", "node-3", "node-4"]
+for node in nodes:
+    print("dispatch:", node)
+
+driver.quit()
+
+def analyze(html):
+    return len(html.split("<div>"))
+
+while True:
+    print("selenium heartbeat...")
+    time.sleep(5)
   </div>
 
-  <div class="block">
-    <div class="title">Training Model Pipeline</div>
-    tokenizer → embedding → transformer → inference<br>
-    hook: training_model_attached
-  </div>
+  <!-- BOTTOM: training model output -->
+  <div class="bottom" id="aiOutput">
+    <div class="aiBox" id="trainingBox">
 
-  <div class="block">
-    <div class="title">Selenium Layer</div>
-    webdriver: active<br>
-    dom scan: enabled<br>
-    automation: standby
-  </div>
+      <div class="log info">[training model] initializing inference runtime...</div>
+      <div class="log warn">[training model] loading distributed weights...</div>
+      <div class="log info">[training model] aligning transformer layers...</div>
+      <div class="log ok">[training model] checkpoint verified</div>
 
-</div>
+      <div style="margin-top:10px; border-top:1px solid #1f2a3a; padding-top:8px;">
+        <div class="log ok" id="finalOutput">
+          [training model output] waiting for inference...
+        </div>
+      </div>
 
-<!-- 🔥 右侧：恢复“铺满系统矩阵” -->
-<div class="main">
-
-  <!-- system -->
-  <div class="panel">
-    <div class="log ok">[system] boot sequence completed</div>
-    <div class="log info">[runtime] dependency graph resolved</div>
-    <div class="log warn">[cache] warm start partial</div>
-    <div class="log ok">[kernel] modules initialized</div>
-  </div>
-
-  <!-- compute -->
-  <div class="panel">
-    <div class="log info">[compute] distributed scheduler online</div>
-    <div class="log ok">[gpu pool] allocation stable</div>
-    <div class="log warn">[latency] jitter detected</div>
-    <div class="log info">[queue] task pipeline active</div>
-  </div>
-
-  <!-- selenium -->
-  <div class="panel">
-    <div class="log info">[selenium] webdriver session active</div>
-    <div class="log ok">[automation] regression passed</div>
-    <div class="log warn">[dom] scan latency observed</div>
-    <div class="log info">[browser] headless mode enabled</div>
-  </div>
-
-  <!-- training model -->
-  <div class="panel">
-    <div class="log info">[training model] embedding graph ready</div>
-    <div class="log ok">[training model] transformer stack stable</div>
-    <div class="log warn">[training model] gradient sync idle</div>
-    <div class="log info">[training model] inference bridge active</div>
-  </div>
-
-  <!-- interaction panel -->
-  <div class="panel" id="logPanel">
-
-    <div class="log info">[debug] awaiting instruction...</div>
-
-    <div class="inputBar">
-      <span style="color:#58a6ff;">dev@model:~$</span>
-
-      <input id="input" placeholder="enter command..." />
-
-      <button onclick="send()">exec</button>
-      <button class="train-btn" onclick="trainModel()">train model</button>
     </div>
-
   </div>
-
-</div>
 
 </div>
 
@@ -220,32 +191,59 @@ Distributed ML Console • Cluster: ap-southeast-1 • runtime: stable-v3.8 • 
 let messages = [];
 
 const input = document.getElementById("input");
-const logPanel = document.getElementById("logPanel");
+const topLogs = document.getElementById("topLogs");
 
-/* Enter 发送 */
-input.addEventListener("keydown", function(e) {
+input.addEventListener("keydown", (e) => {
   if (e.key === "Enter") send();
 });
 
-function addLog(text, type="info") {
+/* top log */
+function addTopLog(text, type="info") {
   const div = document.createElement("div");
   div.className = "log " + type;
   div.textContent = text;
-
-  logPanel.insertBefore(div, logPanel.querySelector(".inputBar"));
+  topLogs.appendChild(div);
 }
 
-/* 发送 */
+/* fake training pulse */
+function fakeTrainingPulse() {
+  const steps = [
+    "[training model] forward pass...",
+    "[training model] backward propagation...",
+    "[training model] gradient sync...",
+    "[training model] optimizer step...",
+    "[training model] evaluating loss..."
+  ];
+
+  let i = 0;
+  const interval = setInterval(() => {
+    document.getElementById("trainingBox").innerHTML +=
+      `<div class="log warn">${steps[i % steps.length]}</div>`;
+    i++;
+  }, 600);
+
+  setTimeout(() => clearInterval(interval), 4000);
+}
+
+/* set AI output */
+function setAI(text) {
+  document.getElementById("finalOutput").textContent =
+    "[training model output] " + text;
+}
+
+/* send request */
 async function send() {
   const msg = input.value.trim();
   if (!msg) return;
 
-  addLog("dev@model: " + msg, "ok");
+  addTopLog("user input: " + msg, "ok");
   input.value = "";
 
   messages.push({ role: "user", content: msg });
 
-  addLog("[training model] executing pipeline...", "warn");
+  addTopLog("[system] dispatching to training pipeline...", "warn");
+
+  fakeTrainingPulse();
 
   try {
     const res = await fetch("/api/chat", {
@@ -256,26 +254,13 @@ async function send() {
 
     const data = await res.json();
 
-    addLog("[training model response] " + (data.reply || "null"), "ok");
+    messages.push({ role: "assistant", content: data.reply });
 
-    messages.push({
-      role: "assistant",
-      content: data.reply
-    });
+    setAI(data.reply || "null response");
 
   } catch (e) {
-    addLog("[runtime] request failed", "warn");
+    setAI("request failed");
   }
-}
-
-/* 清屏（伪装 train model） */
-function trainModel() {
-  const logs = logPanel.querySelectorAll(".log");
-  logs.forEach(l => l.remove());
-
-  addLog("[training model] reinitializing system...", "warn");
-  addLog("[training model] loading checkpoints...", "info");
-  addLog("[training model] reset complete", "ok");
 }
 </script>
 
