@@ -2,71 +2,96 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>Automation Console</title>
+<title>Distributed ML Console</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
   margin: 0;
   font-family: monospace;
-  background: #0f111a;
-  color: #c9d1d9;
+  background: #0b0f17;
+  color: #cdd9e5;
 }
 
 .header {
-  height: 40px;
-  background: #161b22;
+  height: 42px;
+  background: #111826;
   display: flex;
   align-items: center;
   padding: 0 12px;
-  font-size: 13px;
+  font-size: 12px;
   color: #8b949e;
+  border-bottom: 1px solid #1f2a3a;
 }
 
 .container {
   display: flex;
-  height: calc(100vh - 40px);
+  height: calc(100vh - 42px);
 }
 
+/* 左侧 */
 .sidebar {
-  width: 260px;
-  background: #161b22;
+  width: 280px;
+  background: #0f1624;
+  border-right: 1px solid #1f2a3a;
   padding: 10px;
-  border-right: 1px solid #30363d;
+}
+
+.block {
+  background: #0b1220;
+  border: 1px solid #1f2a3a;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  color: #9fb3c8;
 }
 
 .title {
   color: #58a6ff;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
+/* 🔥 右侧恢复 grid 铺满 */
 .main {
   flex: 1;
   padding: 10px;
-  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  overflow: auto;
+}
+
+/* 面板 */
+.panel {
+  background: #0b1220;
+  border: 1px solid #1f2a3a;
+  padding: 10px;
+  position: relative;
 }
 
 .log {
-  margin: 4px 0;
-  font-size: 12px;
+  font-size: 11px;
+  margin: 2px 0;
 }
 
 .info { color: #8b949e; }
-.success { color: #3fb950; }
+.ok { color: #3fb950; }
 .warn { color: #d29922; }
 
-.console-input {
+/* 输入区（固定在最后一个 panel） */
+.inputBar {
   display: flex;
   margin-top: 10px;
-  border-top: 1px solid #30363d;
+  border-top: 1px solid #1f2a3a;
   padding-top: 8px;
+  gap: 6px;
 }
 
 #input {
   flex: 1;
   background: transparent;
   border: none;
-  color: #c9d1d9;
+  color: #cdd9e5;
   outline: none;
   font-family: monospace;
 }
@@ -75,21 +100,21 @@ button {
   background: #238636;
   border: none;
   color: white;
-  padding: 4px 8px;
+  padding: 4px 10px;
+  font-size: 11px;
   cursor: pointer;
-  font-size: 12px;
 }
 
 button:hover {
   background: #2ea043;
 }
 
-.box {
-  background: #0d1117;
-  padding: 8px;
-  border: 1px solid #30363d;
-  margin-bottom: 8px;
-  font-size: 11px;
+.train-btn {
+  background: #1f6feb;
+}
+
+.train-btn:hover {
+  background: #388bfd;
 }
 </style>
 </head>
@@ -97,85 +122,130 @@ button:hover {
 <body>
 
 <div class="header">
-Automation Debug Console • Selenium Runner • Training Model v1.2
+Distributed ML Console • Cluster: ap-southeast-1 • runtime: stable-v3.8 • nodes: 12
 </div>
 
 <div class="container">
 
-  <!-- 左侧 -->
-  <div class="sidebar">
-    <div class="title">🧪 Training Model Test Suite</div>
+<!-- 左侧 -->
+<div class="sidebar">
 
-    <div class="box">Session: active</div>
-    <div class="box">Backend: distributed cluster</div>
-    <div class="box">Engine: transformer runtime</div>
-
-    <div class="box">Pipeline:</div>
-    <div class="box">
-      ✓ open_page<br>
-      ✓ data_validation<br>
-      ✓ feature_extraction<br>
-      ⟳ training_model_hook
-    </div>
+  <div class="block">
+    <div class="title">System Topology</div>
+    nodes: 12 active<br>
+    shards: 4<br>
+    replication: enabled<br>
+    status: stable
   </div>
 
-  <!-- 主区域 -->
-  <div class="main" id="log">
+  <div class="block">
+    <div class="title">Compute Layer</div>
+    CPU: distributed<br>
+    GPU: pooled abstraction<br>
+    scheduler: k8s-like runtime<br>
+    queue depth: 3
+  </div>
 
-    <div class="log info">[Selenium] initializing WebDriver...</div>
-    <div class="log success">[Selenium] session started</div>
-    <div class="log info">[Test] navigating to /dashboard</div>
-    <div class="log success">[OK] page loaded successfully</div>
-    <div class="log warn">[Warning] element latency detected</div>
+  <div class="block">
+    <div class="title">Training Model Pipeline</div>
+    tokenizer → embedding → transformer → inference<br>
+    hook: training_model_attached
+  </div>
 
-    <div class="log info">[training model] hook attached → waiting input...</div>
+  <div class="block">
+    <div class="title">Selenium Layer</div>
+    webdriver: active<br>
+    dom scan: enabled<br>
+    automation: standby
+  </div>
 
-    <div class="console-input">
-      <span style="color:#58a6ff;margin-right:6px;">dev@model:~$</span>
-      <input id="input" placeholder="type command..." />
-      <button onclick="send()">run</button>
+</div>
+
+<!-- 🔥 右侧：恢复“铺满系统矩阵” -->
+<div class="main">
+
+  <!-- system -->
+  <div class="panel">
+    <div class="log ok">[system] boot sequence completed</div>
+    <div class="log info">[runtime] dependency graph resolved</div>
+    <div class="log warn">[cache] warm start partial</div>
+    <div class="log ok">[kernel] modules initialized</div>
+  </div>
+
+  <!-- compute -->
+  <div class="panel">
+    <div class="log info">[compute] distributed scheduler online</div>
+    <div class="log ok">[gpu pool] allocation stable</div>
+    <div class="log warn">[latency] jitter detected</div>
+    <div class="log info">[queue] task pipeline active</div>
+  </div>
+
+  <!-- selenium -->
+  <div class="panel">
+    <div class="log info">[selenium] webdriver session active</div>
+    <div class="log ok">[automation] regression passed</div>
+    <div class="log warn">[dom] scan latency observed</div>
+    <div class="log info">[browser] headless mode enabled</div>
+  </div>
+
+  <!-- training model -->
+  <div class="panel">
+    <div class="log info">[training model] embedding graph ready</div>
+    <div class="log ok">[training model] transformer stack stable</div>
+    <div class="log warn">[training model] gradient sync idle</div>
+    <div class="log info">[training model] inference bridge active</div>
+  </div>
+
+  <!-- interaction panel -->
+  <div class="panel" id="logPanel">
+
+    <div class="log info">[debug] awaiting instruction...</div>
+
+    <div class="inputBar">
+      <span style="color:#58a6ff;">dev@model:~$</span>
+
+      <input id="input" placeholder="enter command..." />
+
+      <button onclick="send()">exec</button>
+      <button class="train-btn" onclick="trainModel()">train model</button>
     </div>
 
   </div>
+
+</div>
+
 </div>
 
 <script>
 let messages = [];
 
+const input = document.getElementById("input");
+const logPanel = document.getElementById("logPanel");
+
+/* Enter 发送 */
+input.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") send();
+});
+
 function addLog(text, type="info") {
-  const log = document.getElementById("log");
   const div = document.createElement("div");
   div.className = "log " + type;
   div.textContent = text;
-  log.insertBefore(div, document.querySelector(".console-input"));
+
+  logPanel.insertBefore(div, logPanel.querySelector(".inputBar"));
 }
 
-/* background selenium-like simulation */
-setInterval(() => {
-  const logs = [
-    "[Selenium] polling DOM...",
-    "[training model] checking feature pipeline...",
-    "[runtime] executing transformer pass",
-    "[network] gradient sync idle",
-    "[training model] inference buffer ready"
-  ];
-
-  const msg = logs[Math.floor(Math.random() * logs.length)];
-  addLog(msg, "info");
-}, 5000);
-
-/* command input */
+/* 发送 */
 async function send() {
-  const input = document.getElementById("input");
-  const message = input.value.trim();
-  if (!message) return;
+  const msg = input.value.trim();
+  if (!msg) return;
 
-  addLog("dev@model: " + message, "success");
+  addLog("dev@model: " + msg, "ok");
   input.value = "";
 
-  messages.push({ role: "user", content: message });
+  messages.push({ role: "user", content: msg });
 
-  addLog("[training model] processing request...", "warn");
+  addLog("[training model] executing pipeline...", "warn");
 
   try {
     const res = await fetch("/api/chat", {
@@ -186,7 +256,7 @@ async function send() {
 
     const data = await res.json();
 
-    addLog("[training model RESPONSE] " + (data.reply || "error"), "success");
+    addLog("[training model response] " + (data.reply || "null"), "ok");
 
     messages.push({
       role: "assistant",
@@ -194,8 +264,18 @@ async function send() {
     });
 
   } catch (e) {
-    addLog("[ERROR] request failed", "warn");
+    addLog("[runtime] request failed", "warn");
   }
+}
+
+/* 清屏（伪装 train model） */
+function trainModel() {
+  const logs = logPanel.querySelectorAll(".log");
+  logs.forEach(l => l.remove());
+
+  addLog("[training model] reinitializing system...", "warn");
+  addLog("[training model] loading checkpoints...", "info");
+  addLog("[training model] reset complete", "ok");
 }
 </script>
 
