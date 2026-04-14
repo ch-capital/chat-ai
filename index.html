@@ -1,134 +1,200 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <title>AI 聊天</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Automation Console</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 10px;
-      background: #f5f5f5;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: monospace;
+  background: #0f111a;
+  color: #c9d1d9;
+}
 
-    h2 {
-      text-align: center;
-    }
+.header {
+  height: 40px;
+  background: #161b22;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 13px;
+  color: #8b949e;
+}
 
-    #chat {
-      background: #fff;
-      border-radius: 10px;
-      padding: 15px;
-      height: 400px;
-      overflow-y: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+.container {
+  display: flex;
+  height: calc(100vh - 40px);
+}
 
-    .msg {
-      margin: 10px 0;
-      line-height: 1.5;
-    }
+.sidebar {
+  width: 260px;
+  background: #161b22;
+  padding: 10px;
+  border-right: 1px solid #30363d;
+}
 
-    .user {
-      text-align: right;
-      color: #007aff;
-    }
+.title {
+  color: #58a6ff;
+  margin-bottom: 10px;
+}
 
-    .bot {
-      text-align: left;
-      color: #333;
-    }
+.main {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
 
-    #inputArea {
-      display: flex;
-      margin-top: 10px;
-    }
+.log {
+  margin: 4px 0;
+  font-size: 12px;
+}
 
-    #input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      outline: none;
-    }
+.info { color: #8b949e; }
+.success { color: #3fb950; }
+.warn { color: #d29922; }
 
-    button {
-      margin-left: 10px;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 8px;
-      background: #007aff;
-      color: white;
-      cursor: pointer;
-    }
+.console-input {
+  display: flex;
+  margin-top: 10px;
+  border-top: 1px solid #30363d;
+  padding-top: 8px;
+}
 
-    button:hover {
-      background: #005ecb;
-    }
-  </style>
+#input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #c9d1d9;
+  outline: none;
+  font-family: monospace;
+}
+
+button {
+  background: #238636;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+button:hover {
+  background: #2ea043;
+}
+
+.box {
+  background: #0d1117;
+  padding: 8px;
+  border: 1px solid #30363d;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+</style>
 </head>
 
 <body>
 
-<h2>🤖 AI 聊天</h2>
+<div class="header">
+Automation Debug Console • Selenium Runner • Training Model v1.2
+</div>
 
-<div id="chat"></div>
+<div class="container">
 
-<div id="inputArea">
-  <input id="input" placeholder="输入消息..." />
-  <button onclick="send()">发送</button>
+  <!-- 左侧 -->
+  <div class="sidebar">
+    <div class="title">🧪 Training Model Test Suite</div>
+
+    <div class="box">Session: active</div>
+    <div class="box">Backend: distributed cluster</div>
+    <div class="box">Engine: transformer runtime</div>
+
+    <div class="box">Pipeline:</div>
+    <div class="box">
+      ✓ open_page<br>
+      ✓ data_validation<br>
+      ✓ feature_extraction<br>
+      ⟳ training_model_hook
+    </div>
+  </div>
+
+  <!-- 主区域 -->
+  <div class="main" id="log">
+
+    <div class="log info">[Selenium] initializing WebDriver...</div>
+    <div class="log success">[Selenium] session started</div>
+    <div class="log info">[Test] navigating to /dashboard</div>
+    <div class="log success">[OK] page loaded successfully</div>
+    <div class="log warn">[Warning] element latency detected</div>
+
+    <div class="log info">[training model] hook attached → waiting input...</div>
+
+    <div class="console-input">
+      <span style="color:#58a6ff;margin-right:6px;">dev@model:~$</span>
+      <input id="input" placeholder="type command..." />
+      <button onclick="send()">run</button>
+    </div>
+
+  </div>
 </div>
 
 <script>
 let messages = [];
 
-function addMessage(text, className) {
-  const chat = document.getElementById("chat");
+function addLog(text, type="info") {
+  const log = document.getElementById("log");
   const div = document.createElement("div");
-  div.className = "msg " + className;
+  div.className = "log " + type;
   div.textContent = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-  return div;
+  log.insertBefore(div, document.querySelector(".console-input"));
 }
 
+/* background selenium-like simulation */
+setInterval(() => {
+  const logs = [
+    "[Selenium] polling DOM...",
+    "[training model] checking feature pipeline...",
+    "[runtime] executing transformer pass",
+    "[network] gradient sync idle",
+    "[training model] inference buffer ready"
+  ];
+
+  const msg = logs[Math.floor(Math.random() * logs.length)];
+  addLog(msg, "info");
+}, 5000);
+
+/* command input */
 async function send() {
   const input = document.getElementById("input");
   const message = input.value.trim();
   if (!message) return;
 
-  addMessage("你：" + message, "user");
+  addLog("dev@model: " + message, "success");
   input.value = "";
 
   messages.push({ role: "user", content: message });
 
-  // loading
-  const loadingDiv = addMessage("AI 正在思考...", "bot");
+  addLog("[training model] processing request...", "warn");
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages })
     });
 
     const data = await res.json();
 
-    loadingDiv.textContent = "AI：" + (data.reply || "出错了");
+    addLog("[training model RESPONSE] " + (data.reply || "error"), "success");
 
-    // 保存AI回复
     messages.push({
       role: "assistant",
       content: data.reply
     });
 
-  } catch (err) {
-    loadingDiv.textContent = "⚠️ 请求失败";
+  } catch (e) {
+    addLog("[ERROR] request failed", "warn");
   }
 }
 </script>
